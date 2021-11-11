@@ -2,10 +2,10 @@ const { response } = require('express');
 const models = require('../models');
 const Account = models.Account;
 const loginPage = (req, res) => {
-    res.render('login', { csrfToken: res.csrfToken() });
+    res.render('login', { csrfToken: req.csrfToken() });
 };
 const signupPage = (req, res) => {
-    res.render('signup', { csrfToken: res.csrfToken() });
+    res.render('signup', { csrfToken: req.csrfToken() });
 };
 const logout = (req, res) => {
     req.session.destroy();
