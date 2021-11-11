@@ -8,14 +8,15 @@ const signupPage = (req, res) => {
     res.render('signup');
 };
 const logout = (req, res) => {
+    req.session.destroy();
     res.redirect('/');
 };
 const login = (request, response) => {
     const req = request;
     const res = response;
 
-    req.body.username = `${req.body.username}`;
-    req.body.password = `${req.body.pass}`;
+    const username = `${req.body.username}`;
+    const password = `${req.body.pass}`;
 
     if (!username || !password) {
         return res.status(400).json({ error: 'All fields are required!' });
@@ -25,6 +26,8 @@ const login = (request, response) => {
         if (err || !account) {
             return res.status(401).json({ error: 'Wrong username or password' });
         }
+
+        req.session.account = Account.AccountModel.toAPI(account);
 
         return res.json({ redirect: '/maker' });
     });
@@ -37,7 +40,7 @@ const signup = (request, response) => {
     req.body.pass = `${req.body.pass}`;
     req.body.pass2 = `${req.body.pass2}`;
 
-    if (!req.body.username || !req.body.pass || ~req.body.pass2) {
+    if (!req.body.username || !req.body.pass || !req.body.pass2) {
         return res.status(400).json({ error: "All fields are required!" });
     }
     if (req.body.pass !== req.body.pass2) {
@@ -55,7 +58,10 @@ const signup = (request, response) => {
 
         const savePromise = newAccount.save();
 
-        savePromise.then(() => res.json({ redirect: '/maker' }));
+        savePromise.then(() => {
+            req.session.account = Account.AccountModel.toAPI(newAccount);
+            return res.json({ redirect: '/maker' });
+        })
 
         savePromise.catch((err) => {
             console.log(err);
